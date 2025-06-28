@@ -1381,7 +1381,14 @@
                     
                     e.preventDefault(); // מונע התנהגות ברירת מחדל
                     this.isDragging = true;
-                    this.draggedElectron = { x: mouseX, y: mouseY };
+                    
+                    // המרת מיקום העכבר לקואורדינטות קנבס
+                    const canvas = app.canvases.atom;
+                    const canvasRect = canvas.getBoundingClientRect();
+                    const canvasX = mouseX - canvasRect.left;
+                    const canvasY = mouseY - canvasRect.top;
+                    
+                    this.draggedElectron = { x: canvasX, y: canvasY };
                     sourceEl.style.cursor = 'grabbing';
                     playSound('grab');
                     console.log('Drag started, isDragging:', this.isDragging); // Debug
@@ -1391,9 +1398,15 @@
             onMouseMove(e) {
                 if (!this.isDragging || !this.draggedElectron) return;
                 
-                console.log('Mouse moving during drag:', e.clientX, e.clientY); // Debug
-                this.draggedElectron.x = e.clientX;
-                this.draggedElectron.y = e.clientY;
+                // המרת מיקום העכבר לקואורדינטות קנבס
+                const canvas = app.canvases.atom;
+                const rect = canvas.getBoundingClientRect();
+                const canvasX = e.clientX - rect.left;
+                const canvasY = e.clientY - rect.top;
+                
+                console.log('Mouse moving during drag:', canvasX, canvasY); // Debug
+                this.draggedElectron.x = canvasX;
+                this.draggedElectron.y = canvasY;
             },
 
             onMouseUp(e) {
@@ -1404,13 +1417,19 @@
                 const sourceEl = document.getElementById('electron-draggable');
                 if (sourceEl) sourceEl.style.cursor = 'grab';
 
+                // המרת מיקום העכבר לקואורדינטות קנבס
+                const canvas = app.canvases.atom;
+                const rect = canvas.getBoundingClientRect();
+                const canvasX = e.clientX - rect.left;
+                const canvasY = e.clientY - rect.top;
+
                 let snapped = false;
                 for (const slot of this.atom.shell.slots) {
                     if (slot.occupied) continue;
                     
-                    const dist = Math.sqrt((this.draggedElectron.x - slot.x)**2 + (this.draggedElectron.y - slot.y)**2);
-                    console.log('Distance to slot:', dist); // Debug
-                    if (dist < 50) { // הגדלתי את הטווח ל-50 פיקסלים
+                    const dist = Math.sqrt((canvasX - slot.x)**2 + (canvasY - slot.y)**2);
+                    console.log('Distance to slot:', dist, 'Canvas coords:', canvasX, canvasY, 'Slot coords:', slot.x, slot.y); // Debug
+                    if (dist < 80) { // הגדלתי את הטווח ל-80 פיקסלים
                         slot.occupied = true;
                         this.atom.placedElectrons.push({ x: slot.x, y: slot.y });
                         snapped = true;
