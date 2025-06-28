@@ -1,0 +1,101 @@
+/* --- משתני עיצוב גלובליים --- */
+:root {
+    --bg-color: #02001a;
+    --primary-text: #e0e0e0;
+    --accent-cyan: #00ffff;
+    --accent-magenta: #ff00ff;
+    --accent-gold: #ffc400;
+    --proton-color: #ff4d6d;
+    --electron-color: #4da6ff;
+    --font-title: 'Assistant', sans-serif;
+    --font-body: 'Heebo', sans-serif;
+}
+
+/* --- איפוס וסגנונות בסיס --- */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    background-color: var(--bg-color);
+    color: var(--primary-text);
+    font-family: var(--font-body);
+    direction: rtl;
+}
+
+#sandbox-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
+#sandbox-canvas { display: block; width: 100%; height: 100%; cursor: grab; }
+#sandbox-canvas:active { cursor: grabbing; }
+
+
+/* --- ממשק משתמש --- */
+#ui-container {
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none; padding: 20px;
+}
+.panel {
+    background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px;
+    padding: 1rem; pointer-events: auto;
+    position: absolute;
+}
+
+/* --- ארגז כלים --- */
+.toolbox-panel {
+    top: 20px; right: 20px;
+    display: flex; flex-direction: column; gap: 1rem;
+}
+.toolbox-panel h4 {
+    font-family: var(--font-title); text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+    padding-bottom: 0.5rem; margin-bottom: 0.5rem;
+}
+
+.tool-item {
+    display: flex; align-items: center;
+    gap: 10px; cursor: pointer;
+    padding: 0.5rem; border-radius: 5px;
+    transition: background-color 0.2s;
+}
+.tool-item:hover { background-color: rgba(255,255,255,0.1); }
+
+.tool-icon {
+    width: 30px; height: 30px; border-radius: 50%;
+    display: flex; justify-content: center; align-items: center;
+    font-family: var(--font-title); font-weight: 800; font-size: 1.2rem;
+}
+.tool-icon.proton { background-color: var(--proton-color); color: white; }
+.tool-icon.electron { background-color: var(--electron-color); color: white; }
+.tool-icon.wire {
+    background-color: #b87333;
+    border-radius: 5px; height: 5px;
+}
+.tool-icon.magnet {
+    background: linear-gradient(to bottom, var(--proton-color) 50%, var(--electron-color) 50%);
+    border-radius: 5px; color: white; font-size: 1rem;
+}
+#reset-btn {
+    margin-top: 1rem; padding: 0.5rem;
+    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+    color: var(--primary-text); border-radius: 5px; cursor: pointer;
+}
+#reset-btn:hover { background: var(--primary-text); color: var(--bg-color); }
+
+/* --- פאנל שליטה תחתון --- */
+.controls-panel {
+    bottom: 20px; left: 50%; transform: translateX(-50%);
+    width: 90%; max-width: 500px;
+}
+.controls-panel.hidden { display: none; }
+.slider-wrapper { display: flex; width: 100%; align-items: center; gap: 15px; }
+input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 8px; background: rgba(0,0,0,0.5); border-radius: 5px; outline: none; cursor: pointer; }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 24px; height: 24px; background: var(--accent-gold); border-radius: 50%; border: 3px solid var(--bg-color); box-shadow: 0 0 5px var(--accent-gold); }
+input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: var(--accent-gold); border-radius: 50%; border: 3px solid var(--bg-color); box-shadow: 0 0 5px var(--accent-gold); }
+
+.instructions-panel {
+    top: 20px; left: 20px; max-width: 350px;
+}
+.instructions-panel h3 {
+    font-family: var(--font-title); font-weight: 700; color: var(--accent-gold);
+}

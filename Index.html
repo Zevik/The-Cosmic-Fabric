@@ -30,6 +30,8 @@
             --accent-gold: #ffc400;
             --proton-color: #ff4d6d; /* גוון אדמדם-ורוד */
             --electron-color: #4da6ff; /* גוון כחלחל */
+            --hydrogen-color: #e0e0e0; /* מימן */
+            --oxygen-color: #ff4d6d; /* חמצן */
             --font-title: 'Assistant', sans-serif;
             --font-body: 'Heebo', sans-serif;
         }
@@ -571,6 +573,139 @@
             height: 100%;
         }
 
+        /* --- שלב 3.1: ארכיטקט המולקולות --- */
+        #molecule-lab-container { position: relative; width: 100%; height: 100%; }
+        #molecule-canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            cursor: grab;
+        }
+        #molecule-canvas:active { cursor: grabbing; }
+
+        /* צבעי אטומים נוספים */
+
+        #stage-3-1-screen .instructions-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            max-width: 350px;
+        }
+        #stage-3-1-screen .instructions-panel h3 {
+            font-family: var(--font-title);
+            font-weight: 700;
+            color: var(--accent-cyan);
+            margin-bottom: 0.5rem;
+        }
+        #stage-3-1-screen .instructions-panel p { 
+            font-size: 0.9rem; 
+            line-height: 1.5; 
+        }
+        #stage-3-1-screen .instructions-panel strong { 
+            color: var(--accent-gold); 
+        }
+
+        /* מגירת אטומים */
+        #atom-drawer {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 1rem;
+            z-index: 10;
+        }
+        #atom-drawer h4 {
+            font-family: var(--font-title);
+            margin-bottom: 0.5rem;
+            color: var(--primary-text);
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            padding-bottom: 0.5rem;
+            width: 100%;
+            text-align: center;
+        }
+
+        .atom-source {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: grab;
+            width: 100%;
+            padding: 5px;
+            border-radius: 5px;
+            transition: background-color 0.2s;
+        }
+        .atom-source:hover { background-color: rgba(255,255,255,0.1); }
+        .atom-source:active { cursor: grabbing; }
+
+        .atom-icon {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: var(--font-title);
+            font-weight: 800;
+            font-size: 1.5rem;
+            color: var(--bg-color);
+        }
+        .atom-icon.hydrogen { background-color: var(--hydrogen-color); }
+        .atom-icon.oxygen { background-color: var(--oxygen-color); }
+
+        #molecule-reset-btn {
+            width: 100%;
+            padding: 0.5rem;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: var(--primary-text);
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: var(--font-body);
+        }
+        #molecule-reset-btn:hover { 
+            background: var(--primary-text); 
+            color: var(--bg-color); 
+        }
+
+        /* מודל הצלחה למולקולות */
+        #molecule-success-modal {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%; max-width: 500px;
+            background: rgba(20, 20, 50, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--accent-gold);
+            border-radius: 15px;
+            padding: 2rem; text-align: center;
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        #molecule-success-modal.hidden { display: none; }
+        #molecule-success-modal h3 {
+            font-family: var(--font-title); font-size: 2.5rem;
+            color: var(--accent-gold); margin-bottom: 1rem;
+            text-shadow: 0 0 10px var(--accent-gold);
+        }
+        #molecule-success-modal p { line-height: 1.6; margin-bottom: 2rem; }
+        #molecule-next-stage-btn {
+            font-family: var(--font-title); font-size: 1.2rem;
+            padding: 0.8rem 2rem; border: 1px solid var(--accent-gold);
+            color: var(--accent-gold); background: transparent;
+            border-radius: 50px; cursor: pointer; transition: all 0.3s;
+        }
+        #molecule-next-stage-btn:hover {
+            background: var(--accent-gold); color: var(--bg-color);
+            box-shadow: 0 0 15px var(--accent-gold);
+        }
+
         #wave-ui-container {
             position: absolute;
             top: 0;
@@ -805,6 +940,42 @@
             
             <!-- כפתורי ניווט -->
             <button id="back-to-stage-3-btn" class="nav-button prev-button">→ חזור לסוד המגנטי</button>
+            <button id="to-stage-5-btn" class="nav-button next-button">לשלב הבא: בניית מולקולות ←</button>
+        </section>
+
+        <!-- שלב 3.1: ארכיטקט המולקולות -->
+        <section id="stage-3-1-screen" class="screen">
+            <div id="molecule-lab-container">
+                <canvas id="molecule-canvas"></canvas>
+
+                <div class="panel instructions-panel">
+                    <h3>ארכיטקט המולקולות</h3>
+                    <p>הכוח האלקטרומגנטי קושר אטומים יחד ויוצר מולקולות. סביב כל אטום ישנן נקודות עגינה (אלקטרוני ערכיות).</p>
+                    <p><strong>משימה:</strong> גרור אטומים ובנה מולקולת מים (H₂O) יציבה.</p>
+                </div>
+
+                <div id="atom-drawer" class="panel">
+                    <h4>מגירת אטומים</h4>
+                    <div class="atom-source" data-type="hydrogen" title="גרור אטום מימן (H)">
+                        <div class="atom-icon hydrogen">H</div>
+                        <span>מימן</span>
+                    </div>
+                    <div class="atom-source" data-type="oxygen" title="גרור אטום חמצן (O)">
+                        <div class="atom-icon oxygen">O</div>
+                        <span>חמצן</span>
+                    </div>
+                    <button id="molecule-reset-btn">איפוס</button>
+                </div>
+                
+                <div id="molecule-success-modal" class="hidden">
+                    <h3>מולקולה יציבה!</h3>
+                    <p>כל הכבוד! יצרת מולקולת מים. שים לב כיצד אטום החמצן מושך אליו את האלקטרונים חזק יותר, מה שהופך אותו ל"קוטב שלילי" קטן ואת המימנים ל"קוטב חיובי" קטן. קוטביות זו היא סוד כוחם של המים.</p>
+                    <button id="molecule-next-stage-btn">לשלב האחרון: חזרה להתחלה</button>
+                </div>
+            </div>
+            
+            <!-- כפתורי ניווט -->
+            <button id="back-to-stage-4-btn" class="nav-button prev-button">→ חזור לסימפוניית האור</button>
         </section>
 
     </div>
@@ -820,6 +991,7 @@
                 stage1_2: document.getElementById('stage-1-2-screen'),
                 stage2_1: document.getElementById('stage-2-1-screen'),
                 stage2_2: document.getElementById('stage-2-2-screen'),
+                stage3_1: document.getElementById('stage-3-1-screen'),
             },
             buttons: {
                 start: document.getElementById('start-btn'),
@@ -830,9 +1002,13 @@
                 toStage2: document.getElementById('to-stage-2-btn'),
                 toStage3: document.getElementById('to-stage-3-btn'),
                 toStage4: document.getElementById('to-stage-4-btn'),
+                toStage5: document.getElementById('to-stage-5-btn'),
                 backToStage1: document.getElementById('back-to-stage-1-btn'),
                 backToStage2: document.getElementById('back-to-stage-2-btn'),
                 backToStage3: document.getElementById('back-to-stage-3-btn'),
+                backToStage4: document.getElementById('back-to-stage-4-btn'),
+                moleculeReset: document.getElementById('molecule-reset-btn'),
+                moleculeNextStage: document.getElementById('molecule-next-stage-btn'),
             },
             canvases: {
                 stars: document.getElementById('stars-bg'),
@@ -840,6 +1016,7 @@
                 atom: document.getElementById('atom-canvas'),
                 magnetic: document.getElementById('magnetic-canvas'),
                 wave: document.getElementById('wave-canvas'),
+                molecule: document.getElementById('molecule-canvas'),
             },
             contexts: {},
             audioContext: null,
@@ -1724,6 +1901,352 @@
             magneticStage.init();
         }
 
+        // --- שלב 3.1: ארכיטקט המולקולות ---
+        const moleculeStage = {
+            canvas: null,
+            ctx: null,
+            atomSources: null,
+            resetButton: null,
+            successModal: null,
+            atoms: [],
+            bonds: [],
+            draggedAtom: null,
+            dragOffset: { x: 0, y: 0 },
+            puzzleSolved: false,
+            isInitialized: false,
+            animationFrameId: null,
+
+            ATOM_PROPERTIES: {
+                hydrogen: {
+                    radius: 20, color: '--hydrogen-color', text: 'H',
+                    slots: [{ angle: 0, occupied: false }]
+                },
+                oxygen: {
+                    radius: 30, color: '--oxygen-color', text: 'O',
+                    slots: [{ angle: -1.823, occupied: false }, { angle: 1.823, occupied: false }]
+                }
+            },
+
+            init() {
+                if (this.isInitialized) return;
+                
+                this.canvas = app.canvases.molecule;
+                this.ctx = this.canvas.getContext('2d');
+                this.atomSources = document.querySelectorAll('.atom-source');
+                this.resetButton = app.buttons.moleculeReset;
+                this.successModal = document.getElementById('molecule-success-modal');
+
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+
+                this.bindEvents();
+                this.isInitialized = true;
+                this.animate();
+            },
+
+            createAtom(type, x, y) {
+                const props = this.ATOM_PROPERTIES[type];
+                const atom = {
+                    id: Date.now() + Math.random(), type, x, y,
+                    radius: props.radius, 
+                    color: varToHex(props.color), 
+                    text: props.text,
+                    rotation: 0,
+                    slots: JSON.parse(JSON.stringify(props.slots)),
+                    bonds: [],
+                    vibrate: 0
+                };
+                this.atoms.push(atom);
+                return atom;
+            },
+
+            reset() {
+                this.atoms = [];
+                this.bonds = [];
+                this.puzzleSolved = false;
+                this.successModal.classList.add('hidden');
+                this.successModal.style.opacity = '0';
+            },
+
+            checkWinCondition() {
+                const oxygenAtoms = this.atoms.filter(a => a.type === 'oxygen');
+                if (oxygenAtoms.length !== 1) return false;
+                
+                const oxygen = oxygenAtoms[0];
+                if (oxygen.bonds.length !== 2) return false;
+
+                const bondedAtoms = oxygen.bonds.map(bondId => this.bonds.find(b => b.id === bondId)).map(bond => bond.atom2);
+                const areBothHydrogen = bondedAtoms.every(atomId => this.atoms.find(a => a.id === atomId).type === 'hydrogen');
+
+                if (areBothHydrogen) {
+                    this.puzzleSolved = true;
+                    playSound('stable');
+                    this.centerAndShowSuccess([oxygen, ...bondedAtoms.map(id => this.atoms.find(a => a.id === id))]);
+                }
+            },
+
+            centerAndShowSuccess(moleculeAtoms) {
+                setTimeout(() => {
+                    this.successModal.classList.remove('hidden');
+                    setTimeout(() => this.successModal.style.opacity = '1', 10);
+                }, 1500);
+            },
+
+            animate() {
+                this.draw();
+                this.animationFrameId = requestAnimationFrame(this.animate.bind(this));
+            },
+
+            draw() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                this.bonds.forEach(bond => this.drawBond(bond));
+                this.atoms.forEach(atom => this.drawAtom(atom));
+
+                if (this.puzzleSolved) {
+                    this.drawPolarityAnimation();
+                }
+            },
+
+            drawAtom(atom) {
+                this.ctx.save();
+                this.ctx.translate(atom.x, atom.y);
+                this.ctx.rotate(atom.rotation);
+
+                if(atom.vibrate > 0) {
+                    this.ctx.translate((Math.random()-0.5)*4, (Math.random()-0.5)*4);
+                    atom.vibrate--;
+                }
+
+                // צל
+                this.ctx.beginPath();
+                this.ctx.arc(0, 0, atom.radius + 2, 0, Math.PI * 2);
+                this.ctx.fillStyle = 'rgba(0,0,0,0.3)';
+                this.ctx.fill();
+
+                // גוף האטום
+                this.ctx.beginPath();
+                this.ctx.arc(0, 0, atom.radius, 0, Math.PI * 2);
+                this.ctx.fillStyle = atom.color;
+                this.ctx.fill();
+                this.ctx.strokeStyle = '#333';
+                this.ctx.lineWidth = 2;
+                this.ctx.stroke();
+
+                // נקודות עגינה
+                if (!this.puzzleSolved) {
+                    atom.slots.forEach(slot => {
+                        if (!slot.occupied) {
+                            const slotX = Math.cos(slot.angle) * (atom.radius + 10);
+                            const slotY = Math.sin(slot.angle) * (atom.radius + 10);
+                            this.ctx.beginPath();
+                            this.ctx.arc(slotX, slotY, 5, 0, Math.PI * 2);
+                            this.ctx.fillStyle = 'rgba(255, 255, 0, 0.7)';
+                            this.ctx.fill();
+                        }
+                    });
+                }
+
+                // טקסט
+                this.ctx.rotate(-atom.rotation);
+                this.ctx.fillStyle = '#111';
+                this.ctx.font = `bold ${atom.radius}px ${varToHex('--font-title')}`;
+                this.ctx.textAlign = 'center';
+                this.ctx.textBaseline = 'middle';
+                this.ctx.fillText(atom.text, 0, 0);
+
+                this.ctx.restore();
+            },
+
+            drawBond(bond) {
+                const atom1 = this.atoms.find(a => a.id === bond.atom1);
+                const atom2 = this.atoms.find(a => a.id === bond.atom2);
+                if (!atom1 || !atom2) return;
+                
+                this.ctx.beginPath();
+                this.ctx.moveTo(atom1.x, atom1.y);
+                this.ctx.lineTo(atom2.x, atom2.y);
+                this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                this.ctx.lineWidth = 8;
+                this.ctx.stroke();
+            },
+
+            polarityPhase: 0,
+            drawPolarityAnimation() {
+                this.polarityPhase += 0.02;
+                const oxygen = this.atoms.find(a => a.type === 'oxygen');
+                if (!oxygen) return;
+                
+                const opacity = Math.abs(Math.sin(this.polarityPhase)) * 0.7;
+
+                this.ctx.fillStyle = `rgba(77, 166, 255, ${opacity})`;
+                this.ctx.font = 'bold 30px sans-serif';
+                this.ctx.fillText('δ-', oxygen.x + 30, oxygen.y - 30);
+
+                const hydrogens = this.atoms.filter(a => a.type === 'hydrogen');
+                hydrogens.forEach(h => {
+                     this.ctx.fillStyle = `rgba(255, 77, 109, ${opacity})`;
+                     this.ctx.fillText('δ+', h.x + 20, h.y - 20);
+                });
+            },
+
+            bindEvents() {
+                this.canvas.addEventListener('mousedown', this.onMouseDown.bind(this));
+                this.canvas.addEventListener('mousemove', this.onMouseMove.bind(this));
+                this.canvas.addEventListener('mouseup', this.onMouseUp.bind(this));
+                this.atomSources.forEach(s => s.addEventListener('mousedown', this.onAtomSourceDown.bind(this)));
+                this.resetButton.addEventListener('click', this.reset.bind(this));
+            },
+
+            onMouseDown(e) {
+                if(!app.audioContext) initAudio();
+                const mouse = this.getMousePos(e);
+                
+                this.draggedAtom = this.atoms.slice().reverse().find(atom => this.distance(mouse, atom) < atom.radius);
+                if (this.draggedAtom) {
+                    this.dragOffset.x = mouse.x - this.draggedAtom.x;
+                    this.dragOffset.y = mouse.y - this.draggedAtom.y;
+                    if (!this.puzzleSolved) this.severBonds(this.draggedAtom);
+                }
+            },
+
+            onAtomSourceDown(e) {
+                if(!app.audioContext) initAudio();
+                const type = e.currentTarget.dataset.type;
+                this.draggedAtom = this.createAtom(type, -100, -100);
+                this.onMouseMove(e);
+            },
+
+            onMouseMove(e) {
+                if (!this.draggedAtom) return;
+                const mouse = this.getMousePos(e);
+                
+                const group = this.getMoleculeGroup(this.draggedAtom);
+                const dx = (mouse.x - this.dragOffset.x) - group.center.x;
+                const dy = (mouse.y - this.dragOffset.y) - group.center.y;
+                
+                group.atoms.forEach(atom => {
+                    atom.x += dx;
+                    atom.y += dy;
+                });
+            },
+
+            onMouseUp(e) {
+                if (!this.draggedAtom) return;
+                
+                let snapped = false;
+                for (const targetAtom of this.atoms) {
+                    if (targetAtom.id === this.draggedAtom.id) continue;
+                    for (const targetSlot of targetAtom.slots) {
+                        if (targetSlot.occupied) continue;
+                        
+                        const targetSlotPos = {
+                            x: targetAtom.x + Math.cos(targetSlot.angle + targetAtom.rotation) * (targetAtom.radius + 10),
+                            y: targetAtom.y + Math.sin(targetSlot.angle + targetAtom.rotation) * (targetAtom.radius + 10)
+                        };
+
+                        if (this.distance(this.draggedAtom, targetSlotPos) < 30) {
+                            const mySlot = this.draggedAtom.slots.find(s => !s.occupied);
+                            if (mySlot) {
+                                this.snap(this.draggedAtom, mySlot, targetAtom, targetSlot);
+                                snapped = true;
+                                break;
+                            }
+                        }
+                    }
+                    if(snapped) break;
+                }
+
+                if(!snapped && !this.draggedAtom.bonds.length > 0) playSound('error');
+
+                this.draggedAtom = null;
+                if (!this.puzzleSolved) this.checkWinCondition();
+            },
+
+            snap(atom1, slot1, atom2, slot2) {
+                playSound('snap');
+                const angleToTarget = Math.atan2(atom2.y - atom1.y, atom2.x - atom1.x);
+                atom1.rotation = angleToTarget - slot1.angle;
+
+                const finalAngle = slot2.angle + atom2.rotation;
+                const bondLength = atom1.radius + atom2.radius + 15;
+                atom1.x = atom2.x + Math.cos(finalAngle) * bondLength;
+                atom1.y = atom2.y + Math.sin(finalAngle) * bondLength;
+                
+                slot1.occupied = true;
+                slot2.occupied = true;
+                const bond = { id: Date.now(), atom1: atom1.id, atom2: atom2.id };
+                this.bonds.push(bond);
+                atom1.bonds.push(bond.id);
+                atom2.bonds.push(bond.id);
+            },
+
+            severBonds(atom) {
+                atom.bonds.forEach(bondId => {
+                    const bond = this.bonds.find(b => b.id === bondId);
+                    if (!bond) return;
+                    const otherAtomId = bond.atom1 === atom.id ? bond.atom2 : bond.atom1;
+                    const otherAtom = this.atoms.find(a => a.id === otherAtomId);
+                    
+                    atom.slots.find(s => s.occupied).occupied = false;
+                    if(otherAtom) {
+                        otherAtom.slots.find(s => s.occupied).occupied = false;
+                        otherAtom.bonds = otherAtom.bonds.filter(id => id !== bondId);
+                    }
+                    this.bonds = this.bonds.filter(b => b.id !== bondId);
+                });
+                atom.bonds = [];
+                atom.vibrate = 10;
+                playSound('error');
+            },
+
+            getMoleculeGroup(startAtom) {
+                let group = new Set([startAtom]);
+                let toCheck = [startAtom];
+                while (toCheck.length > 0) {
+                    const current = toCheck.pop();
+                    current.bonds.forEach(bondId => {
+                        const bond = this.bonds.find(b => b.id === bondId);
+                        const otherAtomId = bond.atom1 === current.id ? bond.atom2 : bond.atom1;
+                        const otherAtom = this.atoms.find(a => a.id === otherAtomId);
+                        if (otherAtom && !group.has(otherAtom)) {
+                            group.add(otherAtom);
+                            toCheck.push(otherAtom);
+                        }
+                    });
+                }
+                
+                const groupAtoms = [...group];
+                const centerX = groupAtoms.reduce((sum, a) => sum + a.x, 0) / groupAtoms.length;
+                const centerY = groupAtoms.reduce((sum, a) => sum + a.y, 0) / groupAtoms.length;
+                
+                return { atoms: groupAtoms, center: {x: centerX, y: centerY}};
+            },
+
+            getMousePos(e) {
+                const rect = this.canvas.getBoundingClientRect();
+                const clientX = e.clientX || e.touches[0].clientX;
+                const clientY = e.clientY || e.touches[0].clientY;
+                return { x: clientX - rect.left, y: clientY - rect.top };
+            },
+
+            distance(p1, p2) { 
+                return Math.sqrt((p1.x - p2.x)**2 + (p1.y - p2.y)**2); 
+            },
+
+            stop() {
+                if (this.animationFrameId) {
+                    cancelAnimationFrame(this.animationFrameId);
+                    this.animationFrameId = null;
+                }
+            }
+        };
+
+        function setupMoleculeStage() {
+            console.log('שלב 3.1: ארכיטקט המולקולות נטען...');
+            moleculeStage.init();
+        }
+
         // --- שלב 2.2: סימפוניית האור ---
         const waveStage = {
             canvas: null,
@@ -1963,6 +2486,12 @@
                 });
             }
             
+            if (app.buttons.toStage5) {
+                app.buttons.toStage5.addEventListener('click', () => {
+                    switchScreen('stage3_1');
+                });
+            }
+            
             if (app.buttons.backToStage1) {
                 app.buttons.backToStage1.addEventListener('click', () => {
                     switchScreen('stage1_1');
@@ -1981,9 +2510,21 @@
                 });
             }
             
+            if (app.buttons.backToStage4) {
+                app.buttons.backToStage4.addEventListener('click', () => {
+                    switchScreen('stage2_2');
+                });
+            }
+            
             if (app.buttons.nextStage) {
                 app.buttons.nextStage.addEventListener('click', () => {
                     switchScreen('stage2_1');
+                });
+            }
+            
+            if (app.buttons.moleculeNextStage) {
+                app.buttons.moleculeNextStage.addEventListener('click', () => {
+                    switchScreen('intro');
                 });
             }
         }
@@ -1999,6 +2540,8 @@
                 magneticStage.stop();
             } else if (app.activeScreen === 'stage2_2') {
                 waveStage.stop();
+            } else if (app.activeScreen === 'stage3_1') {
+                moleculeStage.stop();
             }
 
             app.screens[app.activeScreen].classList.remove('active');
@@ -2019,6 +2562,8 @@
                 setupMagneticStage();
             } else if (screenName === 'stage2_2') {
                 setupWaveStage();
+            } else if (screenName === 'stage3_1') {
+                setupMoleculeStage();
             }
         }
 
