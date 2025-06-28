@@ -810,6 +810,76 @@
             text-shadow: 0 0 8px var(--accent-gold);
         }
 
+        /* --- שלב 3.2: מגרש המשחקים --- */
+        #sandbox-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
+        #sandbox-canvas { 
+            display: block; width: 100%; height: 100%; 
+            cursor: grab; 
+        }
+        #sandbox-canvas:active { cursor: grabbing; }
+
+        #stage-3-2-screen #ui-container {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none; padding: 20px;
+        }
+
+        /* ארגז כלים */
+        .toolbox-panel {
+            top: 20px; right: 20px;
+            display: flex; flex-direction: column; gap: 1rem;
+        }
+        .toolbox-panel h4 {
+            font-family: var(--font-title); text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            padding-bottom: 0.5rem; margin-bottom: 0.5rem;
+        }
+
+        .tool-item {
+            display: flex; align-items: center;
+            gap: 10px; cursor: pointer;
+            padding: 0.5rem; border-radius: 5px;
+            transition: background-color 0.2s;
+        }
+        .tool-item:hover { background-color: rgba(255,255,255,0.1); }
+
+        .tool-icon {
+            width: 30px; height: 30px; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            font-family: var(--font-title); font-weight: 800; font-size: 1.2rem;
+        }
+        .tool-icon.proton { background-color: var(--proton-color); color: white; }
+        .tool-icon.electron { background-color: var(--electron-color); color: white; }
+        .tool-icon.wire {
+            background-color: #b87333;
+            border-radius: 5px; height: 5px;
+        }
+        .tool-icon.magnet {
+            background: linear-gradient(to bottom, var(--proton-color) 50%, var(--electron-color) 50%);
+            border-radius: 5px; color: white; font-size: 1rem;
+        }
+
+        #sandbox-reset-btn {
+            margin-top: 1rem; padding: 0.5rem;
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+            color: var(--primary-text); border-radius: 5px; cursor: pointer;
+            font-family: var(--font-body);
+        }
+        #sandbox-reset-btn:hover { background: var(--primary-text); color: var(--bg-color); }
+
+        /* פאנל שליטה לזרם */
+        #sandbox-wire-controls {
+            bottom: 20px; left: 50%; transform: translateX(-50%);
+            width: 90%; max-width: 500px;
+        }
+        #sandbox-wire-controls.hidden { display: none; }
+
+        #stage-3-2-screen .instructions-panel {
+            top: 20px; left: 20px; max-width: 350px;
+        }
+        #stage-3-2-screen .instructions-panel h3 {
+            font-family: var(--font-title); font-weight: 700; color: var(--accent-gold);
+        }
     </style>
 </head>
 <body>
@@ -970,12 +1040,53 @@
                 <div id="molecule-success-modal" class="hidden">
                     <h3>מולקולה יציבה!</h3>
                     <p>כל הכבוד! יצרת מולקולת מים. שים לב כיצד אטום החמצן מושך אליו את האלקטרונים חזק יותר, מה שהופך אותו ל"קוטב שלילי" קטן ואת המימנים ל"קוטב חיובי" קטן. קוטביות זו היא סוד כוחם של המים.</p>
-                    <button id="molecule-next-stage-btn">לשלב האחרון: חזרה להתחלה</button>
+                    <button id="molecule-next-stage-btn">לשלב הסופי: מגרש המשחקים</button>
                 </div>
             </div>
             
             <!-- כפתורי ניווט -->
             <button id="back-to-stage-4-btn" class="nav-button prev-button">→ חזור לסימפוניית האור</button>
+        </section>
+
+        <!-- שלב 3.2: מגרש המשחקים -->
+        <section id="stage-3-2-screen" class="screen">
+            <div id="sandbox-container">
+                <canvas id="sandbox-canvas"></canvas>
+            </div>
+
+            <div id="ui-container">
+                <div class="panel instructions-panel">
+                    <h3>מגרש המשחקים</h3>
+                    <p>הגעת לסוף המסע. המרחב כולו שלך. השתמש בארגז הכלים כדי להוסיף אובייקטים, לשנות פרמטרים ולגלות את האינטראקציות המורכבות ביניהם. מה יקרה אם תשים מטען נע ליד מגנט? ומה יקרה לתיל עם זרם ליד מגנט אחר?</p>
+                </div>
+
+                <div class="panel toolbox-panel">
+                    <h4>ארגז כלים</h4>
+                    <div class="tool-item" data-type="proton" title="הוסף פרוטון (+)">
+                        <div class="tool-icon proton">+</div><span>פרוטון</span>
+                    </div>
+                    <div class="tool-item" data-type="electron" title="הוסף אלקטרון (-)">
+                        <div class="tool-icon electron">-</div><span>אלקטרון</span>
+                    </div>
+                    <div class="tool-item" data-type="wire" title="הוסף תיל מוליך">
+                        <div class="tool-icon wire"></div><span>תיל מוליך</span>
+                    </div>
+                    <div class="tool-item" data-type="magnet" title="הוסף מגנט קבוע">
+                        <div class="tool-icon magnet">N</div><span>מגנט קבוע</span>
+                    </div>
+                    <button id="sandbox-reset-btn">נקה הכל</button>
+                </div>
+
+                <div class="panel controls-panel hidden" id="sandbox-wire-controls">
+                    <label for="sandbox-current-slider">עוצמת זרם בתיל</label>
+                    <div class="slider-wrapper">
+                        <input type="range" id="sandbox-current-slider" min="0" max="100" value="50">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- כפתורי ניווט -->
+            <button id="back-to-stage-5-btn" class="nav-button prev-button">→ חזור למולקולות</button>
         </section>
 
     </div>
@@ -992,6 +1103,7 @@
                 stage2_1: document.getElementById('stage-2-1-screen'),
                 stage2_2: document.getElementById('stage-2-2-screen'),
                 stage3_1: document.getElementById('stage-3-1-screen'),
+                stage3_2: document.getElementById('stage-3-2-screen'),
             },
             buttons: {
                 start: document.getElementById('start-btn'),
@@ -1007,8 +1119,10 @@
                 backToStage2: document.getElementById('back-to-stage-2-btn'),
                 backToStage3: document.getElementById('back-to-stage-3-btn'),
                 backToStage4: document.getElementById('back-to-stage-4-btn'),
+                backToStage5: document.getElementById('back-to-stage-5-btn'),
                 moleculeReset: document.getElementById('molecule-reset-btn'),
                 moleculeNextStage: document.getElementById('molecule-next-stage-btn'),
+                sandboxReset: document.getElementById('sandbox-reset-btn'),
             },
             canvases: {
                 stars: document.getElementById('stars-bg'),
@@ -1017,6 +1131,7 @@
                 magnetic: document.getElementById('magnetic-canvas'),
                 wave: document.getElementById('wave-canvas'),
                 molecule: document.getElementById('molecule-canvas'),
+                sandbox: document.getElementById('sandbox-canvas'),
             },
             contexts: {},
             audioContext: null,
@@ -2247,6 +2362,375 @@
             moleculeStage.init();
         }
 
+        // --- שלב 3.2: מגרש המשחקים (3D Physics Sandbox) ---
+        const sandbox = {
+            scene: null,
+            camera: null,
+            renderer: null,
+            controls: null,
+            raycaster: null,
+            mouse: null,
+            plane: null,
+            draggableObjects: [],
+            physicsObjects: [],
+            magneticFieldSources: [],
+            electricFieldLines: [],
+            draggedObject: null,
+            isInitialized: false,
+            animationFrameId: null,
+            forceConstant: 20,
+            damping: 0.96,
+
+            async init() {
+                if (this.isInitialized) return;
+                
+                try {
+                    // ייבוא דינמי של Three.js
+                    const THREE = await import('three');
+                    const { OrbitControls } = await import('three/addons/controls/OrbitControls.js');
+                    
+                    // סצנה ומצלמה
+                    this.scene = new THREE.Scene();
+                    this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                    this.camera.position.set(0, 8, 15);
+
+                    // רנדרר
+                    const canvas = app.canvases.sandbox;
+                    this.renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+                    this.renderer.setSize(window.innerWidth, window.innerHeight);
+                    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+                    // בקרת מצלמה
+                    this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+                    this.controls.enableDamping = true;
+                    this.controls.minDistance = 3;
+                    this.controls.maxDistance = 25;
+
+                    // תאורה
+                    this.scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+                    const dirLight = new THREE.DirectionalLight(0xffffff, 0.7);
+                    dirLight.position.set(5, 10, 7);
+                    this.scene.add(dirLight);
+                    
+                    // רצפה
+                    this.scene.add(new THREE.GridHelper(40, 40, 0xaaaaaa, 0x555555));
+
+                    // מישור גרירה בלתי נראה
+                    this.plane = new THREE.Mesh(
+                        new THREE.PlaneGeometry(100, 100),
+                        new THREE.MeshBasicMaterial({ visible: false, side: THREE.DoubleSide })
+                    );
+                    this.plane.rotation.x = -Math.PI / 2;
+                    this.scene.add(this.plane);
+
+                    // כלי עזר לגרירה
+                    this.raycaster = new THREE.Raycaster();
+                    this.mouse = new THREE.Vector2();
+
+                    this.bindEvents(THREE);
+                    this.isInitialized = true;
+                    this.animate();
+                    
+                } catch (error) {
+                    console.error('שגיאה בטעינת השלב התלת-ממדי:', error);
+                }
+            },
+
+            // מחלקות אובייקטים
+            createPhysicsObject(mesh, type, charge = 0) {
+                const obj = {
+                    mesh: mesh,
+                    type: type,
+                    charge: charge,
+                    velocity: new THREE.Vector3(),
+                    force: new THREE.Vector3(),
+                    mass: mesh.userData.mass || 1,
+                    current: 0,
+                    strength: 5,
+                    fieldLines: [],
+                    
+                    update: function() {
+                        const acceleration = this.force.clone().divideScalar(this.mass);
+                        this.velocity.add(acceleration);
+                        this.velocity.multiplyScalar(sandbox.damping);
+                        this.mesh.position.add(this.velocity);
+                        this.force.set(0, 0, 0);
+                        
+                        // עדכון ויזואליזציה של שדה מגנטי
+                        if (this.type === 'wire' && this.fieldLines.length > 0) {
+                            const intensity = Math.abs(this.current);
+                            this.fieldLines.forEach(ring => {
+                                ring.material.opacity = intensity * 0.5;
+                            });
+                        }
+                    },
+
+                    getMagneticFieldAt: function(point, THREE) {
+                        if (this.type === 'wire') {
+                            const localPoint = this.mesh.worldToLocal(point.clone());
+                            if (Math.abs(localPoint.x) > 5) return new THREE.Vector3();
+                            
+                            const rVec = new THREE.Vector3(0, localPoint.y, localPoint.z);
+                            const r = rVec.length();
+                            if (r < 0.1) return new THREE.Vector3();
+
+                            const B_magnitude = (0.5 * this.current) / r;
+                            const B_direction = new THREE.Vector3(-this.current, 0, 0).cross(rVec).normalize();
+                            
+                            return B_direction.multiplyScalar(B_magnitude).applyQuaternion(this.mesh.quaternion);
+                        } else if (this.type === 'magnet') {
+                            // מודל דיפול פשוט
+                            const localPoint = this.mesh.worldToLocal(point.clone());
+                            const poleDist = this.mesh.geometry.parameters.height * 0.8;
+                            const posPole = new THREE.Vector3(0, poleDist / 2, 0);
+                            const negPole = new THREE.Vector3(0, -poleDist / 2, 0);
+
+                            const r_pos = new THREE.Vector3().subVectors(localPoint, posPole);
+                            const r_neg = new THREE.Vector3().subVectors(localPoint, negPole);
+
+                            const B_pos = r_pos.clone().multiplyScalar(this.strength / Math.pow(r_pos.length(), 3));
+                            const B_neg = r_neg.clone().multiplyScalar(-this.strength / Math.pow(r_neg.length(), 3));
+
+                            const B_total_local = new THREE.Vector3().addVectors(B_pos, B_neg);
+                            return B_total_local.applyQuaternion(this.mesh.quaternion);
+                        }
+                        return new THREE.Vector3();
+                    }
+                };
+                
+                return obj;
+            },
+
+            async addObject(type) {
+                if (!this.isInitialized) return;
+                
+                const THREE = await import('three');
+                let mesh;
+                let physicsObj;
+                
+                switch(type) {
+                    case 'proton':
+                        mesh = new THREE.Mesh(
+                            new THREE.SphereGeometry(0.3), 
+                            new THREE.MeshStandardMaterial({ color: 0xff4d6d })
+                        );
+                        physicsObj = this.createPhysicsObject(mesh, 'proton', 1);
+                        break;
+                    case 'electron':
+                        mesh = new THREE.Mesh(
+                            new THREE.SphereGeometry(0.2), 
+                            new THREE.MeshStandardMaterial({ color: 0x4da6ff })
+                        );
+                        mesh.userData.mass = 0.1;
+                        physicsObj = this.createPhysicsObject(mesh, 'electron', -1);
+                        break;
+                    case 'wire':
+                        mesh = new THREE.Mesh(
+                            new THREE.CylinderGeometry(0.1, 0.1, 10, 16), 
+                            new THREE.MeshStandardMaterial({ color: 0xb87333 })
+                        );
+                        mesh.rotation.z = Math.PI / 2;
+                        mesh.userData.mass = 10;
+                        physicsObj = this.createPhysicsObject(mesh, 'wire');
+                        this.createWireFieldVisual(physicsObj, THREE);
+                        this.magneticFieldSources.push(physicsObj);
+                        document.getElementById('sandbox-wire-controls').classList.remove('hidden');
+                        break;
+                    case 'magnet':
+                        const magnetGeom = new THREE.BoxGeometry(1, 2, 0.5);
+                        const northMat = new THREE.MeshStandardMaterial({ color: 0xff4d6d });
+                        const southMat = new THREE.MeshStandardMaterial({ color: 0x4da6ff });
+                        const neutralMat = new THREE.MeshStandardMaterial({ color: 0xaaaaaa });
+                        
+                        mesh = new THREE.Mesh(magnetGeom, [northMat, southMat, neutralMat]);
+                        mesh.userData.mass = 20;
+                        physicsObj = this.createPhysicsObject(mesh, 'magnet');
+                        this.magneticFieldSources.push(physicsObj);
+                        break;
+                }
+                
+                if (mesh) {
+                    mesh.position.y = mesh.geometry.parameters.height ? mesh.geometry.parameters.height / 2 : 0.3;
+                    mesh.position.x = (Math.random() - 0.5) * 10;
+                    mesh.position.z = (Math.random() - 0.5) * 10;
+                    this.scene.add(mesh);
+                    this.draggableObjects.push(mesh);
+                    this.physicsObjects.push(physicsObj);
+                    playSound('add');
+                }
+            },
+
+            createWireFieldVisual(wireObj, THREE) {
+                const ringMaterial = new THREE.MeshBasicMaterial({
+                    color: 0xff00ff,
+                    transparent: true,
+                    opacity: 0,
+                    side: THREE.DoubleSide
+                });
+                
+                for(let i = 1; i <= 5; i++) {
+                    const ringGeometry = new THREE.TorusGeometry(i * 0.4, 0.02, 16, 100);
+                    const ring = new THREE.Mesh(ringGeometry, ringMaterial.clone());
+                    ring.rotation.x = Math.PI / 2;
+                    wireObj.fieldLines.push(ring);
+                    wireObj.mesh.add(ring);
+                }
+            },
+
+            animate() {
+                if (!this.isInitialized) return;
+                this.animationFrameId = requestAnimationFrame(this.animate.bind(this));
+
+                // חישובי פיזיקה
+                this.updatePhysics();
+
+                if (this.controls) this.controls.update();
+                if (this.renderer && this.scene && this.camera) {
+                    this.renderer.render(this.scene, this.camera);
+                }
+            },
+
+            async updatePhysics() {
+                const THREE = await import('three');
+                
+                // 1. כוחות חשמליים בין חלקיקים טעונים
+                for (let i = 0; i < this.physicsObjects.length; i++) {
+                    for (let j = i + 1; j < this.physicsObjects.length; j++) {
+                        const p1 = this.physicsObjects[i];
+                        const p2 = this.physicsObjects[j];
+                        
+                        if ((p1.type === 'proton' || p1.type === 'electron') && 
+                            (p2.type === 'proton' || p2.type === 'electron')) {
+                            const vec = new THREE.Vector3().subVectors(p1.mesh.position, p2.mesh.position);
+                            const distSq = vec.lengthSq();
+                            if (distSq > 0.1) {
+                                const forceMag = -this.forceConstant * (p1.charge * p2.charge) / distSq;
+                                const forceVec = vec.normalize().multiplyScalar(forceMag);
+                                p1.force.add(forceVec);
+                                p2.force.sub(forceVec);
+                            }
+                        }
+                    }
+                }
+                
+                // 2. כוחות מגנטיים
+                this.physicsObjects.forEach(p => {
+                    const totalB = new THREE.Vector3();
+                    this.magneticFieldSources.forEach(source => {
+                        totalB.add(source.getMagneticFieldAt(p.mesh.position, THREE));
+                    });
+
+                    if ((p.type === 'proton' || p.type === 'electron') && p.velocity.lengthSq() > 0.0001) {
+                        // כוח לורנץ על חלקיקים נעים
+                        const lorentzForce = new THREE.Vector3().crossVectors(p.velocity, totalB).multiplyScalar(p.charge);
+                        p.force.add(lorentzForce);
+                    }
+                    
+                    if (p.type === 'wire' && p.current !== 0) {
+                        // כוח על תיל עם זרם
+                        const wireDirection = new THREE.Vector3(-1, 0, 0).applyQuaternion(p.mesh.quaternion);
+                        const wireForce = new THREE.Vector3().crossVectors(wireDirection, totalB).multiplyScalar(p.current * 10);
+                        p.force.add(wireForce);
+                    }
+                });
+
+                // עדכון מיקומים
+                this.physicsObjects.forEach(p => p.update());
+            },
+
+            reset() {
+                this.physicsObjects.forEach(p => this.scene.remove(p.mesh));
+                this.electricFieldLines.forEach(l => this.scene.remove(l));
+                this.physicsObjects = [];
+                this.draggableObjects = [];
+                this.magneticFieldSources = [];
+                this.electricFieldLines = [];
+                document.getElementById('sandbox-wire-controls').classList.add('hidden');
+            },
+
+            bindEvents(THREE) {
+                // כפתורי ארגז הכלים
+                document.querySelectorAll('.tool-item').forEach(el => {
+                    el.addEventListener('click', () => this.addObject(el.dataset.type));
+                });
+                
+                // מחוון זרם
+                document.getElementById('sandbox-current-slider').addEventListener('input', e => {
+                    const wireObj = this.physicsObjects.find(p => p.type === 'wire');
+                    if(wireObj) wireObj.current = (e.target.value - 50) / 50; // טווח -1 עד 1
+                });
+
+                // גרירה
+                const canvas = this.renderer.domElement;
+                canvas.addEventListener('pointerdown', (e) => this.onPointerDown(e, THREE));
+                canvas.addEventListener('pointermove', (e) => this.onPointerMove(e, THREE));
+                canvas.addEventListener('pointerup', () => this.onPointerUp());
+
+                // שינוי גודל חלון
+                window.addEventListener('resize', () => {
+                    if (this.camera && this.renderer) {
+                        this.camera.aspect = window.innerWidth / window.innerHeight;
+                        this.camera.updateProjectionMatrix();
+                        this.renderer.setSize(window.innerWidth, window.innerHeight);
+                    }
+                });
+            },
+
+            onPointerDown(event, THREE) {
+                this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+                this.raycaster.setFromCamera(this.mouse, this.camera);
+                
+                const intersects = this.raycaster.intersectObjects(this.draggableObjects);
+                if (intersects.length > 0) {
+                    this.controls.enabled = false;
+                    this.draggedObject = intersects[0].object;
+                    this.plane.position.copy(this.draggedObject.position);
+                    this.plane.lookAt(this.camera.position);
+                    playSound('grab');
+                }
+            },
+
+            onPointerMove(event, THREE) {
+                if (!this.draggedObject) return;
+                
+                this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+                this.raycaster.setFromCamera(this.mouse, this.camera);
+                
+                const intersects = this.raycaster.intersectObject(this.plane);
+                if (intersects.length > 0) {
+                    this.draggedObject.position.copy(intersects[0].point);
+                    // שמירה על גובה קבוע
+                    if (this.draggedObject.geometry.type === 'SphereGeometry') {
+                        this.draggedObject.position.y = this.draggedObject.geometry.parameters.radius;
+                    } else if (this.draggedObject.geometry.type === 'BoxGeometry') {
+                        this.draggedObject.position.y = this.draggedObject.geometry.parameters.height / 2;
+                    }
+                }
+            },
+
+            onPointerUp() {
+                if (this.draggedObject) {
+                    playSound('release');
+                    this.controls.enabled = true;
+                    this.draggedObject = null;
+                }
+            },
+
+            stop() {
+                if (this.animationFrameId) {
+                    cancelAnimationFrame(this.animationFrameId);
+                    this.animationFrameId = null;
+                }
+            }
+        };
+
+        function setupSandboxStage() {
+            console.log('שלב 3.2: מגרש המשחקים נטען...');
+            sandbox.init();
+        }
+
         // --- שלב 2.2: סימפוניית האור ---
         const waveStage = {
             canvas: null,
@@ -2524,7 +3008,19 @@
             
             if (app.buttons.moleculeNextStage) {
                 app.buttons.moleculeNextStage.addEventListener('click', () => {
-                    switchScreen('intro');
+                    switchScreen('stage3_2');
+                });
+            }
+            
+            if (app.buttons.backToStage5) {
+                app.buttons.backToStage5.addEventListener('click', () => {
+                    switchScreen('stage3_1');
+                });
+            }
+            
+            if (app.buttons.sandboxReset) {
+                app.buttons.sandboxReset.addEventListener('click', () => {
+                    sandbox.reset();
                 });
             }
         }
@@ -2542,6 +3038,8 @@
                 waveStage.stop();
             } else if (app.activeScreen === 'stage3_1') {
                 moleculeStage.stop();
+            } else if (app.activeScreen === 'stage3_2') {
+                sandbox.stop();
             }
 
             app.screens[app.activeScreen].classList.remove('active');
@@ -2564,6 +3062,8 @@
                 setupWaveStage();
             } else if (screenName === 'stage3_1') {
                 setupMoleculeStage();
+            } else if (screenName === 'stage3_2') {
+                setupSandboxStage();
             }
         }
 
