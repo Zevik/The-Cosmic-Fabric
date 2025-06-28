@@ -1046,6 +1046,7 @@
             
             <!-- כפתורי ניווט -->
             <button id="back-to-stage-4-btn" class="nav-button prev-button">→ חזור לסימפוניית האור</button>
+            <button id="to-stage-6-btn" class="nav-button next-button">לשלב הסופי: מגרש המשחקים ←</button>
         </section>
 
         <!-- שלב 3.2: מגרש המשחקים -->
@@ -1115,6 +1116,7 @@
                 toStage3: document.getElementById('to-stage-3-btn'),
                 toStage4: document.getElementById('to-stage-4-btn'),
                 toStage5: document.getElementById('to-stage-5-btn'),
+                toStage6: document.getElementById('to-stage-6-btn'),
                 backToStage1: document.getElementById('back-to-stage-1-btn'),
                 backToStage2: document.getElementById('back-to-stage-2-btn'),
                 backToStage3: document.getElementById('back-to-stage-3-btn'),
@@ -2973,6 +2975,12 @@
             if (app.buttons.toStage5) {
                 app.buttons.toStage5.addEventListener('click', () => {
                     switchScreen('stage3_1');
+                });
+            }
+            
+            if (app.buttons.toStage6) {
+                app.buttons.toStage6.addEventListener('click', () => {
+                    switchScreen('stage3_2');
                 });
             }
             
