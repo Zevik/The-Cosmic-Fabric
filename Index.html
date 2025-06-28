@@ -1531,46 +1531,101 @@
             isDragging: false,
             animationFrameId: null,
             isRunning: false,
-            boundMouseDown: null,
-            boundMouseMove: null,
-            boundMouseUp: null,
+            isInitialized: false,
 
             init() {
-                if (this.isInitialized) {
-                    return;
-                }
+                if (this.isInitialized) return;
                 
                 const canvas = app.canvases.atom;
-                if (!canvas) {
-                    return;
-                }
+                if (!canvas) return;
                 
                 const ctx = canvas.getContext('2d');
                 app.contexts.atom = ctx;
 
-                function resize() {
-                    canvas.width = window.innerWidth;
-                    canvas.height = window.innerHeight;
-                    atomLab.atom.x = canvas.width / 2;
-                    atomLab.atom.y = canvas.height / 2;
-                    atomLab.atom.shell.radius = Math.min(canvas.width, canvas.height) / 4;
-                    atomLab.calculateShellSlots();
-                }
-                
-                window.addEventListener('resize', resize);
-                resize();
+                // קביעת גודל קנבס
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                this.atom.x = canvas.width / 2;
+                this.atom.y = canvas.height / 2;
+                this.atom.shell.radius = Math.min(canvas.width, canvas.height) / 4;
+                this.calculateShellSlots();
 
-                // שמירת bound functions לניקוי מאוחר יותר
-                this.boundMouseDown = this.onMouseDown.bind(this);
-                this.boundMouseMove = this.onMouseMove.bind(this);
-                this.boundMouseUp = this.onMouseUp.bind(this);
-
-                // הוספת event listeners
-                document.addEventListener('mousedown', this.boundMouseDown);
-                document.addEventListener('mousemove', this.boundMouseMove);
-                document.addEventListener('mouseup', this.boundMouseUp);
-                
+                // הוספת event listeners פשוטה ישירה
+                this.setupEventListeners();
                 this.isInitialized = true;
+            },
+
+            setupEventListeners() {
+                const electronSource = document.getElementById('electron-draggable');
+                if (!electronSource) return;
+
+                let startX = 0, startY = 0;
+
+                // התחלת גרירה - לחיצה על מקור האלקטרון
+                electronSource.addEventListener('mousedown', (e) => {
+                    if (!app.audioContext) initAudio();
+                    if (this.atom.state === 'stable') return;
+                    
+                    e.preventDefault();
+                    this.isDragging = true;
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    
+                    // יצירת אלקטרון נגרר
+                    const canvas = app.canvases.atom;
+                    const rect = canvas.getBoundingClientRect();
+                    this.draggedElectron = {
+                        x: e.clientX - rect.left,
+                        y: e.clientY - rect.top
+                    };
+                    
+                    electronSource.style.cursor = 'grabbing';
+                    playSound('grab');
+                });
+
+                // גרירת האלקטרון - תנועת עכבר בכל המסמך
+                document.addEventListener('mousemove', (e) => {
+                    if (!this.isDragging || !this.draggedElectron) return;
+                    
+                    const canvas = app.canvases.atom;
+                    const rect = canvas.getBoundingClientRect();
+                    this.draggedElectron.x = e.clientX - rect.left;
+                    this.draggedElectron.y = e.clientY - rect.top;
+                });
+
+                // סיום גרירה - עזיבת עכבר בכל המסמך
+                document.addEventListener('mouseup', (e) => {
+                    if (!this.isDragging || !this.draggedElectron) return;
+                    
+                    this.isDragging = false;
+                    electronSource.style.cursor = 'grab';
+
+                    // בדיקה אם האלקטרון קרוב לאיזה מקום בקליפה
+                    let snapped = false;
+                    for (const slot of this.atom.shell.slots) {
+                        if (slot.occupied) continue;
+                        
+                        const dist = Math.sqrt(
+                            (this.draggedElectron.x - slot.x) ** 2 + 
+                            (this.draggedElectron.y - slot.y) ** 2
+                        );
+                        
+                        if (dist < 80) {
+                            slot.occupied = true;
+                            this.atom.placedElectrons.push({ x: slot.x, y: slot.y });
+                            snapped = true;
+                            playSound('snap');
+                            break;
+                        }
+                    }
+                    
+                    if (!snapped) {
+                        playSound('error');
+                    }
+                    
+                    this.draggedElectron = null;
+                    this.updateAtomState();
+                });
             },
 
             start() {
@@ -1582,33 +1637,24 @@
             stop() {
                 if (!this.isRunning) return;
                 this.isRunning = false;
-                cancelAnimationFrame(this.animationFrameId);
-                
-                // ניקוי event listeners
-                if (this.boundMouseDown) {
-                    document.removeEventListener('mousedown', this.boundMouseDown);
-                    document.removeEventListener('mousemove', this.boundMouseMove);
-                    document.removeEventListener('mouseup', this.boundMouseUp);
+                if (this.animationFrameId) {
+                    cancelAnimationFrame(this.animationFrameId);
+                    this.animationFrameId = null;
                 }
             },
 
             reset() {
-                // עצירת הלולאה אם רצה
                 this.stop();
-                
-                // איפוס כל המשתנים
                 this.atom.placedElectrons = [];
                 this.atom.state = 'positive_ion';
                 this.draggedElectron = null;
                 this.isDragging = false;
                 this.isInitialized = false;
                 
-                // איפוס המצב והמקומות
                 this.calculateShellSlots();
                 this.atom.shell.slots.forEach(slot => slot.occupied = false);
                 this.updateAtomState();
                 
-                // הסתרת מודל ההצלחה
                 const successModal = document.getElementById('success-modal');
                 if (successModal) {
                     successModal.classList.add('hidden');
@@ -1656,82 +1702,6 @@
                 const successModal = document.getElementById('success-modal');
                 successModal.classList.remove('hidden');
                 setTimeout(() => { successModal.style.opacity = '1'; }, 10);
-            },
-
-            onMouseDown(e) {
-                if (!app.audioContext) initAudio(); // אתחול אודיו באינטראקציה ראשונה
-                
-                const sourceEl = document.getElementById('electron-draggable');
-                if (!sourceEl) return;
-                
-                const rect = sourceEl.getBoundingClientRect();
-                const mouseX = e.clientX;
-                const mouseY = e.clientY;
-
-                if (mouseX >= rect.left && mouseX <= rect.right && mouseY >= rect.top && mouseY <= rect.bottom) {
-                    if (this.atom.state === 'stable') return;
-                    
-                    e.preventDefault();
-                    this.isDragging = true;
-                    
-                    // המרת מיקום העכבר לקואורדינטות קנבס
-                    const canvas = app.canvases.atom;
-                    const canvasRect = canvas.getBoundingClientRect();
-                    const canvasX = mouseX - canvasRect.left;
-                    const canvasY = mouseY - canvasRect.top;
-                    
-                    this.draggedElectron = { x: canvasX, y: canvasY };
-                    sourceEl.style.cursor = 'grabbing';
-                    playSound('grab');
-                }
-            },
-
-            onMouseMove(e) {
-                if (!this.isDragging || !this.draggedElectron) return;
-                
-                // המרת מיקום העכבר לקואורדינטות קנבס
-                const canvas = app.canvases.atom;
-                const rect = canvas.getBoundingClientRect();
-                const canvasX = e.clientX - rect.left;
-                const canvasY = e.clientY - rect.top;
-                
-                this.draggedElectron.x = canvasX;
-                this.draggedElectron.y = canvasY;
-            },
-
-            onMouseUp(e) {
-                if (!this.isDragging || !this.draggedElectron) return;
-                
-                this.isDragging = false;
-                const sourceEl = document.getElementById('electron-draggable');
-                if (sourceEl) sourceEl.style.cursor = 'grab';
-
-                // המרת מיקום העכבר לקואורדינטות קנבס
-                const canvas = app.canvases.atom;
-                const rect = canvas.getBoundingClientRect();
-                const canvasX = e.clientX - rect.left;
-                const canvasY = e.clientY - rect.top;
-
-                let snapped = false;
-                for (const slot of this.atom.shell.slots) {
-                    if (slot.occupied) continue;
-                    
-                    const dist = Math.sqrt((canvasX - slot.x)**2 + (canvasY - slot.y)**2);
-                    if (dist < 80) {
-                        slot.occupied = true;
-                        this.atom.placedElectrons.push({ x: slot.x, y: slot.y });
-                        snapped = true;
-                        playSound('snap');
-                        break;
-                    }
-                }
-                
-                if (!snapped) {
-                    playSound('error');
-                }
-                
-                this.draggedElectron = null;
-                this.updateAtomState();
             },
 
             drawCircle(x, y, radius, color, text = null) {
@@ -2967,13 +2937,9 @@
             }
             
             if (app.buttons.toStage6) {
-                console.log('toStage6 button found and connected');
                 app.buttons.toStage6.addEventListener('click', () => {
-                    console.log('toStage6 button clicked!');
                     switchScreen('stage3_2');
                 });
-            } else {
-                console.error('toStage6 button not found!');
             }
             
             if (app.buttons.backToStage1) {
@@ -3072,20 +3038,6 @@
         setupStarsBackground();
         simulation.init();
         bindEvents();
-        
-        // תיקון נוסף לכפתור toStage6 - חיבור ישיר
-        setTimeout(() => {
-            const toStage6Btn = document.getElementById('to-stage-6-btn');
-            if (toStage6Btn) {
-                console.log('Direct connection to toStage6 button successful');
-                toStage6Btn.addEventListener('click', () => {
-                    console.log('Direct toStage6 button clicked!');
-                    switchScreen('stage3_2');
-                });
-            } else {
-                console.error('Direct connection: toStage6 button still not found!');
-            }
-        }, 1000);
     });
     </script>
 </body>
