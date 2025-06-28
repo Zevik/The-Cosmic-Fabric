@@ -2346,14 +2346,10 @@
             async init() {
                 if (this.isInitialized) return;
                 
-                console.log('מתחיל אתחול sandbox...');
-                
                 try {
                     // ייבוא דינמי של Three.js
                     const THREE = await import('three');
                     const { OrbitControls } = await import('three/addons/controls/OrbitControls.js');
-                    
-                    console.log('Three.js נטען בהצלחה');
                     
                     // סצנה ומצלמה
                     this.scene = new THREE.Scene();
@@ -2395,7 +2391,6 @@
 
                     this.bindEvents(THREE);
                     this.isInitialized = true;
-                    console.log('sandbox אותחל בהצלחה');
                     this.animate();
                     
                 } catch (error) {
@@ -2469,12 +2464,7 @@
             },
 
             async addObject(type) {
-                console.log('נקראה פונקציית addObject עם טיפוס:', type);
-                
-                if (!this.isInitialized) {
-                    console.log('sandbox לא אותחל עדיין!');
-                    return;
-                }
+                if (!this.isInitialized) return;
                 
                 const THREE = await import('three');
                 let mesh;
@@ -2482,7 +2472,6 @@
                 
                 switch(type) {
                     case 'proton':
-                        console.log('יוצר פרוטון...');
                         mesh = new THREE.Mesh(
                             new THREE.SphereGeometry(0.3), 
                             new THREE.MeshStandardMaterial({ color: 0xff4d6d })
@@ -2490,7 +2479,6 @@
                         physicsObj = this.createPhysicsObject(mesh, 'proton', 1);
                         break;
                     case 'electron':
-                        console.log('יוצר אלקטרון...');
                         mesh = new THREE.Mesh(
                             new THREE.SphereGeometry(0.2), 
                             new THREE.MeshStandardMaterial({ color: 0x4da6ff })
@@ -2499,7 +2487,6 @@
                         physicsObj = this.createPhysicsObject(mesh, 'electron', -1);
                         break;
                     case 'wire':
-                        console.log('יוצר תיל...');
                         mesh = new THREE.Mesh(
                             new THREE.CylinderGeometry(0.1, 0.1, 10, 16), 
                             new THREE.MeshStandardMaterial({ color: 0xb87333 })
@@ -2512,7 +2499,6 @@
                         document.getElementById('sandbox-wire-controls').classList.remove('hidden');
                         break;
                     case 'magnet':
-                        console.log('יוצר מגנט...');
                         const magnetGeom = new THREE.BoxGeometry(1, 2, 0.5);
                         const northMat = new THREE.MeshStandardMaterial({ color: 0xff4d6d });
                         const southMat = new THREE.MeshStandardMaterial({ color: 0x4da6ff });
@@ -2523,9 +2509,6 @@
                         physicsObj = this.createPhysicsObject(mesh, 'magnet');
                         this.magneticFieldSources.push(physicsObj);
                         break;
-                    default:
-                        console.log('טיפוס לא מוכר:', type);
-                        return;
                 }
                 
                 if (mesh) {
@@ -2535,10 +2518,7 @@
                     this.scene.add(mesh);
                     this.draggableObjects.push(mesh);
                     this.physicsObjects.push(physicsObj);
-                    console.log('אובייקט נוצר ונוסף לסצנה:', type);
                     playSound('add');
-                } else {
-                    console.log('שגיאה ביצירת אובייקט:', type);
                 }
             },
 
@@ -2636,7 +2616,6 @@
                 document.querySelectorAll('.tool-item').forEach(el => {
                     el.addEventListener('click', function() {
                         const type = this.dataset.type;
-                        console.log('נלחץ כפתור:', type);
                         self.addObject(type);
                     });
                 });
