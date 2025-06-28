@@ -2963,9 +2963,13 @@
             }
             
             if (app.buttons.toStage6) {
+                console.log('toStage6 button found and connected');
                 app.buttons.toStage6.addEventListener('click', () => {
+                    console.log('toStage6 button clicked!');
                     switchScreen('stage3_2');
                 });
+            } else {
+                console.error('toStage6 button not found!');
             }
             
             if (app.buttons.backToStage1) {
