@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מארג היקום - שלב 3.1: ארכיטקט המולקולות</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@700;800&family=Heebo:wght@300;400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="stage-3-1.css">
+</head>
+<body>
+    <div id="lab-container">
+        <canvas id="molecule-canvas"></canvas>
+
+        <div class="panel instructions-panel">
+            <h3>ארכיטקט המולקולות</h3>
+            <p>הכוח האלקטרומגנטי קושר אטומים יחד ויוצר מולקולות. סביב כל אטום ישנן נקודות עגינה (אלקטרוני ערכיות).</p>
+            <p><strong>משימה:</strong> גרור אטומים ובנה מולקולת מים (H₂O) יציבה.</p>
+        </div>
+
+        <div id="atom-drawer" class="panel">
+            <h4>מגירת אטומים</h4>
+            <div class="atom-source" data-type="hydrogen" title="גרור אטום מימן (H)">
+                <div class="atom-icon hydrogen">H</div>
+                <span>מימן</span>
+            </div>
+            <div class="atom-source" data-type="oxygen" title="גרור אטום חמצן (O)">
+                <div class="atom-icon oxygen">O</div>
+                <span>חמצן</span>
+            </div>
+            <button id="reset-btn">איפוס</button>
+        </div>
+        
+        <div id="success-modal" class="hidden">
+            <h3>מולקולה יציבה!</h3>
+            <p>כל הכבוד! יצרת מולקולת מים. שים לב כיצד אטום החמצן מושך אליו את האלקטרונים חזק יותר, מה שהופך אותו ל"קוטב שלילי" קטן ואת המימנים ל"קוטב חיובי" קטן. קוטביות זו היא סוד כוחם של המים.</p>
+            <button id="next-stage-btn">לשלב האחרון: Sandbox</button>
+        </div>
+    </div>
+    
+    <script src="stage-3-1.js"></script>
+</body>
+</html>

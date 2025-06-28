@@ -1,0 +1,138 @@
+/* --- משתני עיצוב גלובליים --- */
+:root {
+    --bg-color: #02001a;
+    --primary-text: #e0e0e0;
+    --accent-cyan: #00ffff;
+    --accent-gold: #ffc400;
+    --hydrogen-color: #e0e0e0;
+    --oxygen-color: #ff4d6d;
+    --font-title: 'Assistant', sans-serif;
+    --font-body: 'Heebo', sans-serif;
+}
+
+/* --- איפוס וסגנונות בסיס --- */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    background-color: var(--bg-color);
+    color: var(--primary-text);
+    font-family: var(--font-body);
+    direction: rtl;
+}
+
+#lab-container { position: relative; width: 100%; height: 100%; }
+#molecule-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: grab;
+}
+#molecule-canvas:active { cursor: grabbing; }
+
+/* --- פאנלים --- */
+.panel {
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 1rem;
+    position: absolute;
+    z-index: 10;
+}
+
+.instructions-panel { top: 20px; right: 20px; max-width: 350px; }
+.instructions-panel h3 {
+    font-family: var(--font-title);
+    font-weight: 700;
+    color: var(--accent-cyan);
+    margin-bottom: 0.5rem;
+}
+.instructions-panel p { font-size: 0.9rem; line-height: 1.5; }
+.instructions-panel strong { color: var(--accent-gold); }
+
+/* --- מגירת אטומים --- */
+#atom-drawer {
+    top: 20px;
+    left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: center;
+}
+#atom-drawer h4 {
+    font-family: var(--font-title);
+    margin-bottom: 0.5rem;
+    color: var(--primary-text);
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+    padding-bottom: 0.5rem;
+    width: 100%;
+    text-align: center;
+}
+
+.atom-source {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: grab;
+    width: 100%;
+    padding: 5px;
+    border-radius: 5px;
+    transition: background-color 0.2s;
+}
+.atom-source:hover { background-color: rgba(255,255,255,0.1); }
+.atom-source:active { cursor: grabbing; }
+
+.atom-icon {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: var(--font-title);
+    font-weight: 800;
+    font-size: 1.5rem;
+    color: var(--bg-color);
+}
+.atom-icon.hydrogen { background-color: var(--hydrogen-color); }
+.atom-icon.oxygen { background-color: var(--oxygen-color); }
+#reset-btn {
+    width: 100%;
+    padding: 0.5rem;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: var(--primary-text);
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: var(--font-body);
+}
+#reset-btn:hover { background: var(--primary-text); color: var(--bg-color); }
+
+/* --- מודל הצלחה --- */
+#success-modal {
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%; max-width: 500px;
+    border-color: var(--accent-gold);
+    padding: 2rem; text-align: center;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+}
+#success-modal.hidden { display: none; }
+#success-modal h3 {
+    font-family: var(--font-title); font-size: 2.5rem;
+    color: var(--accent-gold); margin-bottom: 1rem;
+    text-shadow: 0 0 10px var(--accent-gold);
+}
+#success-modal p { line-height: 1.6; margin-bottom: 2rem; }
+#next-stage-btn {
+    font-family: var(--font-title); font-size: 1.2rem;
+    padding: 0.8rem 2rem; border: 1px solid var(--accent-gold);
+    color: var(--accent-gold); background: transparent;
+    border-radius: 50px; cursor: pointer; transition: all 0.3s;
+}
+#next-stage-btn:hover {
+    background: var(--accent-gold); color: var(--bg-color);
+    box-shadow: 0 0 15px var(--accent-gold);
+}
