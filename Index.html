@@ -889,13 +889,17 @@
 
         /* פאנל שליטה לזרם */
         #sandbox-wire-controls {
-            bottom: 20px; left: 50%; transform: translateX(-50%);
+            bottom: 90px; left: 50%; transform: translateX(-50%);
             width: 90%; max-width: 500px;
         }
         #sandbox-wire-controls.hidden { display: none; }
 
         #stage-3-2-screen .instructions-panel {
-            bottom: 20px; left: 20px; max-width: 350px;
+            bottom: 20px; 
+            left: 50%; 
+            transform: translateX(-50%);
+            max-width: 400px;
+            text-align: center;
         }
         #stage-3-2-screen .instructions-panel h3 {
             font-family: var(--font-title); font-weight: 700; color: var(--accent-gold);
@@ -2464,7 +2468,13 @@
             },
 
             async addObject(type) {
-                if (!this.isInitialized) return;
+                console.log('נקראה addObject עם טיפוס:', type);
+                console.log('האם אותחל?', this.isInitialized);
+                
+                if (!this.isInitialized) {
+                    console.log('הfandbox לא אותחל!');
+                    return;
+                }
                 
                 const THREE = await import('three');
                 let mesh;
@@ -2613,9 +2623,14 @@
             bindEvents(THREE) {
                 // כפתורי ארגז הכלים - שמירה על ההקשר הנכון
                 const self = this;
-                document.querySelectorAll('.tool-item').forEach(el => {
+                const toolItems = document.querySelectorAll('.tool-item');
+                console.log('מספר כפתורי כלים נמצאו:', toolItems.length);
+                
+                toolItems.forEach(el => {
+                    console.log('מחבר כפתור:', el.dataset.type);
                     el.addEventListener('click', function() {
                         const type = this.dataset.type;
+                        console.log('נלחץ כפתור:', type);
                         self.addObject(type);
                     });
                 });
