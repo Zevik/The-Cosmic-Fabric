@@ -557,8 +557,9 @@
             color: var(--accent-gold);
             cursor: pointer;
             transition: all 0.3s;
-            z-index: 100;
+            z-index: 200;
             backdrop-filter: blur(5px);
+            pointer-events: auto;
         }
         
         .nav-button:hover {
@@ -3068,6 +3069,20 @@
         setupStarsBackground();
         simulation.init();
         bindEvents();
+        
+        // תיקון נוסף לכפתור toStage6 - חיבור ישיר
+        setTimeout(() => {
+            const toStage6Btn = document.getElementById('to-stage-6-btn');
+            if (toStage6Btn) {
+                console.log('Direct connection to toStage6 button successful');
+                toStage6Btn.addEventListener('click', () => {
+                    console.log('Direct toStage6 button clicked!');
+                    switchScreen('stage3_2');
+                });
+            } else {
+                console.error('Direct connection: toStage6 button still not found!');
+            }
+        }, 1000);
     });
     </script>
 </body>
