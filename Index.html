@@ -398,6 +398,22 @@
             padding: 20px;
         }
 
+        #stage-2-1-screen .controls-panel {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 1rem;
+        }
+
         #ui-container {
             position: absolute;
             top: 0;
@@ -447,17 +463,17 @@
         .controls-panel {
             position: absolute;
             bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 90%;
-            max-width: 500px;
+            right: 20px;
+            width: 300px;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 0.5rem;
-            background: none;
-            border: none;
-            backdrop-filter: none;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 1rem;
         }
         .controls-panel label {
             font-family: var(--font-title);
@@ -1225,14 +1241,12 @@
                 if (this.isRunning) return;
                 this.isRunning = true;
                 this.loop();
-                console.log("סימולציה התחילה");
             },
 
             stop() {
                 if (!this.isRunning) return;
                 this.isRunning = false;
                 cancelAnimationFrame(this.animationFrameId);
-                console.log("סימולציה נעצרה");
             },
 
             reset() {
@@ -1518,16 +1532,12 @@
             boundMouseUp: null,
 
             init() {
-                console.log('Initializing atom lab...'); // Debug
-                
                 if (this.isInitialized) {
-                    console.log('Atom lab already initialized, skipping...'); // Debug
                     return;
                 }
                 
                 const canvas = app.canvases.atom;
                 if (!canvas) {
-                    console.log('Atom canvas not found!'); // Debug
                     return;
                 }
                 
@@ -1552,20 +1562,16 @@
                 this.boundMouseUp = this.onMouseUp.bind(this);
 
                 // הוספת event listeners
-                console.log('Adding atom lab event listeners'); // Debug
                 document.addEventListener('mousedown', this.boundMouseDown);
                 document.addEventListener('mousemove', this.boundMouseMove);
                 document.addEventListener('mouseup', this.boundMouseUp);
-                console.log('Event listeners added successfully'); // Debug
                 
                 this.isInitialized = true;
-                console.log('Atom lab initialization complete'); // Debug
             },
 
             start() {
                 if (this.isRunning) return;
                 this.isRunning = true;
-                console.log('Atom lab started, event listeners should be bound'); // Debug
                 this.loop();
             },
 
@@ -1583,8 +1589,6 @@
             },
 
             reset() {
-                console.log('Resetting atom lab...'); // Debug
-                
                 // עצירת הלולאה אם רצה
                 this.stop();
                 
@@ -1606,8 +1610,6 @@
                     successModal.classList.add('hidden');
                     successModal.style.opacity = '0';
                 }
-                
-                console.log('Atom lab reset complete'); // Debug
             },
 
             calculateShellSlots() {
@@ -1653,27 +1655,19 @@
             },
 
             onMouseDown(e) {
-                console.log('Mouse down detected'); // Debug
                 if (!app.audioContext) initAudio(); // אתחול אודיו באינטראקציה ראשונה
                 
                 const sourceEl = document.getElementById('electron-draggable');
-                if (!sourceEl) {
-                    console.log('Source element not found'); // Debug
-                    return;
-                }
+                if (!sourceEl) return;
                 
                 const rect = sourceEl.getBoundingClientRect();
                 const mouseX = e.clientX;
                 const mouseY = e.clientY;
-                
-                console.log('Mouse position:', mouseX, mouseY); // Debug
-                console.log('Element bounds:', rect); // Debug
 
                 if (mouseX >= rect.left && mouseX <= rect.right && mouseY >= rect.top && mouseY <= rect.bottom) {
-                    console.log('Click detected on electron - starting drag'); // Debug
                     if (this.atom.state === 'stable') return;
                     
-                    e.preventDefault(); // מונע התנהגות ברירת מחדל
+                    e.preventDefault();
                     this.isDragging = true;
                     
                     // המרת מיקום העכבר לקואורדינטות קנבס
@@ -1685,7 +1679,6 @@
                     this.draggedElectron = { x: canvasX, y: canvasY };
                     sourceEl.style.cursor = 'grabbing';
                     playSound('grab');
-                    console.log('Drag started, isDragging:', this.isDragging); // Debug
                 }
             },
 
@@ -1698,7 +1691,6 @@
                 const canvasX = e.clientX - rect.left;
                 const canvasY = e.clientY - rect.top;
                 
-                console.log('Mouse moving during drag:', canvasX, canvasY); // Debug
                 this.draggedElectron.x = canvasX;
                 this.draggedElectron.y = canvasY;
             },
@@ -1706,7 +1698,6 @@
             onMouseUp(e) {
                 if (!this.isDragging || !this.draggedElectron) return;
                 
-                console.log('Mouse up - ending drag'); // Debug
                 this.isDragging = false;
                 const sourceEl = document.getElementById('electron-draggable');
                 if (sourceEl) sourceEl.style.cursor = 'grab';
@@ -1722,19 +1713,16 @@
                     if (slot.occupied) continue;
                     
                     const dist = Math.sqrt((canvasX - slot.x)**2 + (canvasY - slot.y)**2);
-                    console.log('Distance to slot:', dist, 'Canvas coords:', canvasX, canvasY, 'Slot coords:', slot.x, slot.y); // Debug
-                    if (dist < 80) { // הגדלתי את הטווח ל-80 פיקסלים
+                    if (dist < 80) {
                         slot.occupied = true;
                         this.atom.placedElectrons.push({ x: slot.x, y: slot.y });
                         snapped = true;
                         playSound('snap');
-                        console.log('Electron snapped to slot!'); // Debug
                         break;
                     }
                 }
                 
                 if (!snapped) {
-                    console.log('Electron not snapped'); // Debug
                     playSound('error');
                 }
                 
@@ -2014,7 +2002,6 @@
         };
 
         function setupMagneticStage() {
-            console.log('שלב 2.1: הסוד המגנטי נטען...');
             magneticStage.init();
         }
 
@@ -2360,7 +2347,6 @@
         };
 
         function setupMoleculeStage() {
-            console.log('שלב 3.1: ארכיטקט המולקולות נטען...');
             moleculeStage.init();
         }
 
@@ -2729,7 +2715,6 @@
         };
 
         function setupSandboxStage() {
-            console.log('שלב 3.2: מגרש המשחקים נטען...');
             sandbox.init();
         }
 
@@ -2936,7 +2921,6 @@
         };
 
         function setupWaveStage() {
-            console.log('שלב 2.2: סימפוניית האור נטען...');
             waveStage.init();
         }
 
@@ -3058,12 +3042,11 @@
             if (screenName === 'stage1_1') {
                 simulation.start();
             } else if (screenName === 'stage1_2') {
-                console.log('Switching to atom lab...'); // Debug
                 atomLab.reset();
                 setTimeout(() => {
                     atomLab.init();
                     atomLab.start();
-                }, 100); // מעט דיליי כדי לוודא שהרסט הסתיים
+                }, 100);
             } else if (screenName === 'stage2_1') {
                 setupMagneticStage();
             } else if (screenName === 'stage2_2') {
